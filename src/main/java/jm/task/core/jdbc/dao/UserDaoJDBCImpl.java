@@ -2,7 +2,6 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
-    private static final String DB_NAME = "jdbc_tutorial";
     private static final String TABLE_NAME = "user";
     private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS `" + TABLE_NAME + "` (\n" +
             "  `id` INT NOT NULL AUTO_INCREMENT,\n" +
@@ -25,18 +23,16 @@ public class UserDaoJDBCImpl implements UserDao {
     private static final String INSERT_USER = "INSERT INTO USER(name, lastName, age) VALUES(?, ?, ?)";
     private static final String DELETE_USER_BY_ID = "DELETE FROM user where id=?";
     private static final String SELECT_ALL_USER = "SELECT * FROM user";
-
     private static final String DELETE_ALL_USER = "DELETE FROM user where id";
-    private Connection connection;
+    private final Connection connection;
 
     {
         try {
             connection = Util.getConnection();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
-
 
     public UserDaoJDBCImpl() {
 
@@ -46,7 +42,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_TABLE)) {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -54,7 +50,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try (PreparedStatement preparedStatement = connection.prepareStatement(DROP_TABLE)) {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -64,8 +60,9 @@ public class UserDaoJDBCImpl implements UserDao {
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3, age);
             preparedStatement.executeUpdate();
+            System.out.println("User с именем – " + name + " добавлен в базу данных");
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -74,8 +71,7 @@ public class UserDaoJDBCImpl implements UserDao {
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            //throw new RuntimeException(e);
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -96,11 +92,10 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void cleanUsersTable() {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(DELETE_ALL_USER);
-        ) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(DELETE_ALL_USER)) {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }
